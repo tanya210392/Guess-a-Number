@@ -1,12 +1,11 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {View, Text, StyleSheet, Alert, ScrollView, FlatList} from 'react-native';
+import {View, Text, StyleSheet, Alert, ScrollView, FlatList, Dimensions} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 
 import NumberContainer from '../components/NumberContainer';
 import Card from '../components/Card';
 import MainButton from '../components/MainButton';
 import DefaultStyles from '../constants/default-styles';
-import ScrollViewBase from "react-native-web/src/exports/ScrollView/ScrollViewBase";
 
 const generateRandomBetween = (min, max, exclude) => {
     min = Math.ceil(min);
@@ -30,8 +29,26 @@ const GameScreen = ({userNumber, gameOverHandler}) => {
     const initialGuess = generateRandomBetween(1, 100, userNumber);
     const [currentGuess, setCurrentGuess] = useState([initialGuess]);
     const [pastGuesses, setPastGuesses] = useState([initialGuess.toString()]);
+    const [availableDeviceWidth, setAvailableDeviceWidth] = useState(
+        Dimensions.get('window').width
+    );
+    const [availableDeviceHeight, setAvailableDeviceHeight] = useState(
+        Dimensions.get('window').height
+    );
     const currentLow = useRef(1);
     const currentHigh = useRef(100);
+
+    useEffect(() => {
+        const updateLayout = () => {
+            setAvailableDeviceHeight(Dimensions.get('window').height);
+            setAvailableDeviceWidth(Dimensions.get('window').width);
+        };
+
+        Dimensions.addEventListener('change', updateLayout);
+        return () => {
+            Dimensions.removeEventListener('change', updateLayout);
+        }
+    });
 
     useEffect(() => {
         if (currentGuess === userNumber) {
@@ -59,6 +76,32 @@ const GameScreen = ({userNumber, gameOverHandler}) => {
         setPastGuesses(curPastGuesses => [nextNumber.toString(), ...curPastGuesses]);
     };
 
+    if (availableDeviceHeight < 500) {
+        return (
+            <View style={styles.container}>
+                <Text style={DefaultStyles.title}>Opponent's Guess</Text>
+                <View style={styles.controls}>
+                    <MainButton onPress={nextGuessHandler.bind(this, 'lower')}>
+                        <Ionicons name="md-remove" size={24} color="white" />
+                    </MainButton>
+                    <NumberContainer>{currentGuess}</NumberContainer>
+                    <MainButton onPress={nextGuessHandler.bind(this, 'greater')}>
+                        <Ionicons name="md-add" size={24} color="white" />
+                    </MainButton>
+                </View>
+
+                <View style={styles.listContainer}>
+                    <FlatList
+                        keyExtractor={item => item}
+                        data={pastGuesses}
+                        renderItem={renderListItem.bind(this, pastGuesses.length)}
+                        contentContainerStyle={styles.list}
+                    />
+                </View>
+            </View>
+        );
+    }
+
     return (
         <View style={styles.container}>
             <Text style={DefaultStyles.title}>Opponent's Guess</Text>
@@ -73,7 +116,7 @@ const GameScreen = ({userNumber, gameOverHandler}) => {
             </Card>
             <View style={styles.listContainer}>
                 {/*<ScrollView contentContainerStyle={styles.list}>*/}
-                    {/*{pastGuesses.map((guess, index) => renderListItem(guess, pastGuesses.length - index))}*/}
+                {/*{pastGuesses.map((guess, index) => renderListItem(guess, pastGuesses.length - index))}*/}
                 {/*</ScrollView>*/}
                 <FlatList
                     keyExtractor={item => item}
@@ -95,13 +138,13 @@ const styles = StyleSheet.create({
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        marginTop: 20,
         width: 400,
-        maxWidth: '90%'
+        maxWidth: '90%',
+        marginTop: Dimensions.get('window').height > 600 ? 20 : 10
     },
     listContainer: {
-        width: '60%',
-        flex: 1
+        flex: 1,
+        width: Dimensions.get('window').width > 350 ? '60%' : '80%'
     },
     list: {
         flexGrow: 1,
@@ -116,6 +159,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: '100%'
+    },
+    controls: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        width: '80%'
     }
 });
 
