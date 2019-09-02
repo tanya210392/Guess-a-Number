@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
 import * as Font from 'expo-font';
 import {AppLoading} from 'expo';
 
@@ -16,57 +16,57 @@ const fetchFonts = () => {
 };
 
 export default function App() {
-  const [userNumber, setUserNumber] = useState(null);
-  const [guessRounds, setGuessRounds] = useState(0);
-  const [dataLoaded, setDataLoaded] = useState(false);
+    const [userNumber, setUserNumber] = useState(null);
+    const [guessRounds, setGuessRounds] = useState(0);
+    const [dataLoaded, setDataLoaded] = useState(false);
 
-  if (!dataLoaded) {
-      return <AppLoading
-          startAsync={fetchFonts}
-          onFinish={() => setDataLoaded(true)}
-          onError={(err) => console.log(err)}
-      />;
-  }
+    if (!dataLoaded) {
+        return <AppLoading
+            startAsync={fetchFonts}
+            onFinish={() => setDataLoaded(true)}
+            onError={(err) => console.log(err)}
+        />;
+    }
 
-  const configureNewGameHandler = () => {
-      setGuessRounds(0);
-      setUserNumber(null)
-  };
+    const configureNewGameHandler = () => {
+        setGuessRounds(0);
+        setUserNumber(null)
+    };
 
-  const startGameHandler = (selectedNumber) => {
-      setUserNumber(selectedNumber);
-      setGuessRounds(0);
-  };
+    const startGameHandler = (selectedNumber) => {
+        setUserNumber(selectedNumber);
+        setGuessRounds(0);
+    };
 
-  const gameOverHandler = (numOfRounds) => {
-      setGuessRounds(numOfRounds);
-  };
+    const gameOverHandler = (numOfRounds) => {
+        setGuessRounds(numOfRounds);
+    };
 
-  let content = <StartGameScreen
-      startGameHandler={startGameHandler}
-  />;
+    let content = <StartGameScreen
+        startGameHandler={startGameHandler}
+    />;
 
-  if (userNumber && guessRounds <= 0) {
-      content = <GameScreen
-          gameOverHandler={gameOverHandler}
-          userNumber={userNumber} />;
-  } else if (guessRounds > 0) {
-      content = <GameOverScreen
-          configureNewGameHandler={configureNewGameHandler}
-          roundsNumber={guessRounds}
-          userNumber={userNumber}/>;
-  }
+    if (userNumber && guessRounds <= 0) {
+        content = <GameScreen
+            gameOverHandler={gameOverHandler}
+            userNumber={userNumber} />;
+    } else if (guessRounds > 0) {
+        content = <GameOverScreen
+            configureNewGameHandler={configureNewGameHandler}
+            roundsNumber={guessRounds}
+            userNumber={userNumber}/>;
+    }
 
-  return (
-    <View style={styles.container}>
-      <Header title="Guess a Number" />
-      { content }
-    </View>
-  );
+    return (
+        <SafeAreaView style={styles.container}>
+            <Header title="Guess a Number" />
+            { content }
+        </SafeAreaView>
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  }
+    container: {
+        flex: 1
+    }
 });

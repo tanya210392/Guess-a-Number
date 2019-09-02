@@ -1,6 +1,5 @@
 node_modules/**/*
 .expo/*
-.idea/*
 .expo-shared/*
 npm-debug.*
 *.jks
@@ -11,3 +10,4 @@ npm-debug.*
 *.orig.*
 web-build/
 web-report/
+.idea
